@@ -1,8 +1,7 @@
-
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Customer Map Prototype</title>
+  <title>Customer Map</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Leaflet CSS -->
@@ -15,18 +14,47 @@
 </head>
 <body>
   <div id="map"></div>
+
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <!-- PapaParse for CSV parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
   <script>
-    var map = L.map('map').setView([20, 0], 2);
+    // Initialize the map
+    var map = L.map('map').setView([20, 0], 2); // Centered at [latitude, longitude], zoom level 2
+
+    // Add OpenStreetMap tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // Test marker to verify rendering
-    L.marker([51.5, -0.09]).addTo(map)
-      .bindPopup("Test marker in London")
-      .openPopup();
+    // URL of the published CSV from Google Sheets
+    var csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vReUqBFd4dJSq3wj4eh8-GDl3Ln_7_BOEnK9L-5YHINkORsiBt4wWwTGK95cYFwgSaX2cyGjPep4qy8/pub?gid=0&single=true&output=csv';
+
+    // Fetch and parse the CSV data
+    Papa.parse(csvUrl, {
+      download: true,
+      header: true,
+      complete: function(results) {
+        results.data.forEach(function(row) {
+          // Ensure latitude and longitude are present
+          if (row['Latitude'] && row['Longitude']) {
+            var marker = L.marker([parseFloat(row['Latitude']), parseFloat(row['Longitude'])]).addTo(map);
+            var popupContent = `
+              <strong>${row['Name']}</strong><br/>
+              Region: ${row['Region']}<br/>
+              Account Executive: ${row['Account Executive']}<br/>
+              Solutions Engineer: ${row['Solutions Engineer']}<br/>
+              Created Date: ${row['Created Date']}<br/>
+              Last Activity Date: ${row['Last Activity Date']}<br/>
+              Last Modified Date: ${row['Last Modified Date']}<br/>
+              Status: ${row['Status']}
+            `;
+            marker.bindPopup(popupContent);
+          }
+        });
+      }
+    });
   </script>
 </body>
 </html>
