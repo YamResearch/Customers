@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2575.6">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;title&gt;Customer Map&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta charset="utf-8" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- Leaflet CSS --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>#map {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>height: 100vh;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div id="map"&gt;&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- Leaflet JS --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- PapaParse for CSV parsing --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Initialize the map</p>
+<p class="p1"><span class="Apple-converted-space">    </span>var map = L.map('map').setView([20, 0], 2); // Centered at [latitude, longitude], zoom level 2</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Add OpenStreetMap tiles</p>
+<p class="p1"><span class="Apple-converted-space">    </span>L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>attribution: '&amp;copy; OpenStreetMap contributors'</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}).addTo(map);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// URL of the published CSV from Google Sheets</p>
+<p class="p1"><span class="Apple-converted-space">    </span>var csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vReUqBFd4dJSq3wj4eh8-GDl3Ln_7_BOEnK9L-5YHINkORsiBt4wWwTGK95cYFwgSaX2cyGjPep4qy8/pub?gid=0&amp;single=true&amp;output=csv';</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Fetch and parse the CSV data</p>
+<p class="p1"><span class="Apple-converted-space">    </span>Papa.parse(csvUrl, {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>download: true,</p>
+<p class="p1"><span class="Apple-converted-space">      </span>header: true,</p>
+<p class="p1"><span class="Apple-converted-space">      </span>complete: function(results) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>results.data.forEach(function(row) {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>// Ensure latitude and longitude are present</p>
+<p class="p1"><span class="Apple-converted-space">          </span>if (row['Latitude'] &amp;&amp; row['Longitude']) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>var marker = L.marker([parseFloat(row['Latitude']), parseFloat(row['Longitude'])]).addTo(map);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>var popupContent = `</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;strong&gt;${row['Name']}&lt;/strong&gt;&lt;br/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>Region: ${row['Region']}&lt;br/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>Account Executive: ${row['Account Executive']}&lt;br/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>Solutions Engineer: ${row['Solutions Engineer']}&lt;br/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>Created Date: ${row['Created Date']}&lt;br/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>Last Activity Date: ${row['Last Activity Date']}&lt;br/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>Last Modified Date: ${row['Last Modified Date']}&lt;br/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>Status: ${row['Status']}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>`;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>marker.bindPopup(popupContent);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
